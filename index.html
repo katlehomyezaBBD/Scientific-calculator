@@ -16,12 +16,12 @@
     </header>
     <main>
         <section id="calculator">
-            <article>
+            <article id = input>
               <input id = "expression">  
               <form >
-                <input type="checkbox" id="languagemode" name="languagemode" value="btn">
+                <input type="radio" id="languagemode" name="mode" value="btn">
                 Plain Language
-                <input type="checkbox" id="btnmode" name="Btnmode" value="btn">
+                <input type="radio" id="btnmode" name="mode" value="btn">
                 Button Mode
               </form>
             </article>
@@ -37,13 +37,18 @@
                     <button class="btn number">7</button>
                     <button class="btn number">8</button>
                     <button class="btn number">9</button>
+                    <button class="btn basic-operation">+</button>
+
+                    
                     <button class="btn number">0</button>
                     <button class="btn number">.</button>
-                    <button class="btn number">()</button>
-                    <button class="btn basic-operation">+</button>
+                    <button class="btn basic-operation">÷</button>
+
+
                     <button class="btn basic-operation">-</button>
                     <button class="btn basic-operation">x</button>
-                    <button class="btn basic-operation">÷</button>
+                    <button class="btn number">( )</button>
+                    <button class="btn compute">C</button>
                     <button id = "equal" class="btn basic-operation">=</button>
                 </section>
             
@@ -68,25 +73,22 @@
                     <button class="btn function">xⁿ</button>
                     <button class="btn function">1/x</button>
                    
-                    <button class="btn compute">C</button>
-                    <button class="btn compute">=</button>
                     <button class="btn compute">AC</button>
+                    <button class="btn compute">=</button>
+                    
                     <button class="btn function">10^x</button>
                     <button class="btn function">log₁₀</button>
                     <button class="btn function">log₂</button>
                     <button class="btn function">ln(x)</button>
-                    <button class="btn function">nth root</button>
-                    <button class="btn function">∫ ()</button>
+               
+                   
                     
                 
-                    <button class="btn matrix-operation">[M]</button>
-                    <button class="btn matrix-operation">transpose</button>
+                 
                     <button class="btn matrix-operation">det</button>
-                    <button class="btn matrix-operation">inv</button>
+                   
                     <button class="btn matrix-operation">rank</button>
-                    <button class="btn matrix-operation">eigenvalues</button>
-                    <button class="btn matrix-operation">eigenvectors</button>
-                
+               
                     <button class="btn statistical-operation">Σ</button>
                     <button class="btn statistical-operation">∏</button>
 
@@ -95,8 +97,25 @@
                     <button class="btn statistical-operation">σ²</button>
                     <button class="btn statistical-operation">nCr</button>
                     <button class="btn statistical-operation">nPr </button>
+
+
                     
                 </section>
+                  <!-- Statistics Input Section -->
+                  <div id="statistics-input-container" class="input-container" style="display: none;">
+                    <h3>Enter Array of Numbers</h3>
+                    <textarea id="statistics-array-input" placeholder="Enter numbers separated by commas (e.g., 1, 2, 3)"></textarea>
+                    <button id="submit-statistics">Submit</button>
+                    <button id="close-statistics">Close</button>
+                </div>
+
+                <!-- Matrix Input Section -->
+                <div id="matrix-input-container" class="input-container" style="display: none;">
+                    <h3>Enter Matrix</h3>
+                    <textarea id="matrix-input" placeholder="Enter matrix rows separated by newlines (e.g., 1 2 3\n4 5 6)"></textarea>
+                    <button id="submit-matrix">Submit</button>
+                    <button id="close-matrix">Close</button>
+                </div>
             </section>
             
             

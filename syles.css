@@ -1,4 +1,246 @@
-footer{
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #e3ab3c;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+}
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    background-color: #333;
+    color: white;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+header img {
+    width: 5rem;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* Main calculator container */
+#calculator {
+    background-color: #333;
+    padding: 2rem;
     margin: 0 auto;
+    width: 100%;
+    max-width: 80%;
+    flex: 1;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Expression input */
+#expression {
+    width: 100%;
+    font-size: 4rem;
+    color: white;
+    border: none;
+    text-align: right;
+    background-color: rgb(28, 28, 30);
+    box-shadow: 0 0 0.4vw rgba(0, 0, 0, 0.5), 0 0 0 0.15vw transparent;
+    border-radius: 0.4vw;
+    outline: none;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+    transition: 0.4s;
+}
+
+/* Form and input container */
+#input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+form {
+    display: flex;
+    gap: 1rem;
+    color: white;
+}
+
+form input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* Button layout */
+#numbers {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+}
+
+#numbersside {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+}
+
+#operations {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.8rem;
+}
+
+/* Button styling */
+.btn {
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-family: inherit;
+    font-weight: bold;
+    color: #000000;
+    background-color: #fff2c6;
+    padding: 0.6rem;
+    border-radius: 1rem;
+    border: 0.3rem solid #f8d28b;
+    box-shadow: 0px 0.5rem #ffbc1f;
+    transition: all 0.1s ease;
+}
+
+/* Button variations */
+.number {
+    background-color: #fff2c6;
+    border-color: #f8d28b;
+    box-shadow: 0px 0.5rem #ffbc1f;
+}
+
+.basic-operation {
+    background-color: #ffd700;
+    border-color: #daa520;
+    box-shadow: 0px 0.5rem #b8860b;
+}
+
+.function {
+    background-color: #ffb6c1;
+    border-color: #ff69b4;
+    box-shadow: 0px 0.5rem #ff1493;
+}
+
+.constant {
+    background-color: #98fb98;
+    border-color: #90ee90;
+    box-shadow: 0px 0.5rem #32cd32;
+}
+
+.operation {
+    background-color: #87ceeb;
+    border-color: #87ceeb;
+    box-shadow: 0px 0.5rem #4169e1;
+}
+
+.compute {
+    background-color: #ff6961;
+    border-color: #ff4500;
+    box-shadow: 0px 0.5rem #dc143c;
+}
+
+.matrix-operation {
+    background-color: #dda0dd;
+    border-color: #ba55d3;
+    box-shadow: 0px 0.5rem #9400d3;
+}
+
+.statistical-operation {
+    background-color: #98fb98;
+    border-color: #3cb371;
+    box-shadow: 0px 0.5rem #2e8b57;
+}
+
+/* Button active state */
+.btn:active {
+    position: relative;
+    top: 8px;
+    box-shadow: 0px 0px;
+}
+
+/* Equal button */
+#equal {
+    grid-column: span 3;
+    background-color: #ffd700;
+    border-color: #daa520;
+    box-shadow: 0px 0.5rem #b8860b;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    width: 100%;
+   
+        font-size: 0.8rem;
+        
+        position: fixed;
+        bottom: 0;
+        left: 0;
     
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #calculator {
+        padding: 1rem;
+    }
+
+    #numbers {
+        grid-template-columns: 1fr;
+    }
+
+    #operations {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    #expression {
+        font-size: 2.5rem;
+    }
+
+    .btn {
+        font-size: 1rem;
+        padding: 0.8rem;
+    }
+}
+
+/* styles.css */
+.input-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.input-container textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.input-container button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
 }
