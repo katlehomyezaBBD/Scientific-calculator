@@ -43,7 +43,7 @@
                     <button class="btn basic-operation">-</button>
                     <button class="btn basic-operation">x</button>
                     <button class="btn number">( )</button>
-                    <button data-columns="2" class="btn compute">C</button>
+                    <button ID = "CLEAR" data-columns="2" class="btn compute">C</button>
                     <button id = "equal" class="btn basic-operation">=</button>
                 </section>
             
@@ -88,14 +88,14 @@
                     <button class="btn statistical-operation">µ </button>
                     <button class="btn statistical-operation">σ </button>
                     <button class="btn statistical-operation">σ²</button>
-                    <button data-columns="2" class="btn compute">=</button>
+                    <button id = " equal" data-columns="2" class="btn compute">=</button>
 
 
 
                     
                 </section>
                   <!-- Statistics Input Section -->
-                  <div id="statistics-input-container" class="input-container" style="display: none;">
+                  <div id="statistics-input-container" class="input-container"">
                     <h3>Enter Array of Numbers</h3>
                     <textarea id="statistics-array-input" placeholder="Enter numbers separated by commas (e.g., 1, 2, 3)"></textarea>
                     <button id="submit-statistics">Submit</button>
@@ -103,7 +103,7 @@
                 </div>
 
                 <!-- Matrix Input Section -->
-                <div id="matrix-input-container" class="input-container" style="display: none;">
+                <div id="matrix-input-container" class="input-container">
                     <h3>Enter Matrix</h3>
                     <textarea id="matrix-input" placeholder="Enter matrix rows separated by newlines (e.g., 1 2 3\n4 5 6)"></textarea>
                     <button id="submit-matrix">Submit</button>

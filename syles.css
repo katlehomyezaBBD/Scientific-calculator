@@ -22,7 +22,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 10;
-    min-height: 60px; /* Added minimum height */
+    min-height: 60px; 
 }
 
 header h1{
@@ -40,37 +40,36 @@ header img {
 /* Main calculator container */
 #calculator {
     background-color: #333;
-    padding: min(1.5rem, 3vw); /* Reduced padding */
+    padding: min(1.5rem, 3vw);
     margin: 0 auto;
     max-width: 75%;
  
-    flex: 1; /* Take up remaining space */
+    flex: 1; 
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     min-height: auto;
     justify-content: space-between;
-    margin-bottom: 2rem; /* Add margin to prevent footer overlap */
+    margin-bottom: 2rem;
 }
 
-/* Adjust expression input size */
+
 #expression {
     width: 100%;
-    font-size: clamp(1.5rem, 4vw, 3rem); /* Slightly smaller max font */
-    min-height: 50px; /* Reduced minimum height */
-    margin-bottom: 1rem; /* Reduced margin */
+    font-size: clamp(1.5rem, 4vw, 3rem); 
+    min-height: 50px; 
+    margin-bottom: 1rem;
 }
 
-/* Adjust input container spacing */
 #input {
-    margin-bottom: 1rem; /* Reduced margin */
+    margin-bottom: 1rem;
 }
 
-/* Modify button layouts */
+
 #numbers {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: min(1rem, 2vw); /* Reduced gap */
+    grid-template-columns: 1fr 1fr; 
+    gap: min(1rem, 2vw);
     margin-bottom: 1rem;
 }
 
@@ -82,11 +81,11 @@ header img {
 
 #operations {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Slightly smaller minimum */
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
     gap: min(0.8rem, 2vw);
 }
 
-/* Make two-column buttons wider */
+
 .btn[data-columns="2"] {
     grid-column: span 2;
 }
@@ -94,7 +93,7 @@ header img {
 #numbers {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: min(1.5rem, 3vw); /* Responsive gap */
+    gap: min(1.5rem, 3vw);
     margin-bottom: 1rem;
     
 }
@@ -102,29 +101,29 @@ header img {
 #numbersside {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: min(0.8rem, 2vw); /* Responsive gap */
+    gap: min(0.8rem, 2vw); 
 }
 
 #operations {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Responsive columns */
-    gap: min(0.8rem, 2vw); /* Responsive gap */
+    grid-template-columns: repeat(5, 1fr);  
+    gap: min(0.8rem, 2vw); 
 }
 
-/* Button styling */
+
 .btn {
     cursor: pointer;
-    font-size: clamp(0.1rem, 2vw, 1rem); /* Responsive font size */
+    font-size: clamp(0.1rem, 2vw, 1rem);
     font-family: inherit;
     font-weight: bold;
     color: #000000;
     background-color: #fff2c6;
-    padding: clamp(0.3rem, 2vw, 0.8rem); /* Responsive padding */
+    padding: clamp(0.3rem, 2vw, 0.8rem); 
     border-radius: 1rem;
-    border: max(0.15rem, 0.3vw) solid #f8d28b; /* Responsive border */
+    border: max(0.15rem, 0.3vw) solid #f8d28b; 
     box-shadow: 0px clamp(0px, 0.5vw, 0.01rem) #ffbc1f;    transition: all 0.1s ease;
-    min-height: 0.1rem; /* Minimum height */
-    min-width: 0.4rem; /* Minimum width */
+    min-height: 0.1rem;
+    min-width: 0.4rem; 
     margin-bottom: 0.4rem;
     display: flex;
     align-items: center;
@@ -137,13 +136,13 @@ header img {
 /* Button variations */
 .number, .basic-operation, .function, .constant, 
 .operation, .compute, .matrix-operation, .statistical-operation {
-    box-shadow: 0px max(0.25rem, 0.5vw) #ffbc1f; /* Responsive shadow */
+    box-shadow: 0px max(0.25rem, 0.5vw) #ffbc1f;
 }
 
-/* Button active state */
+
 .btn:active {
     position: relative;
-    top: max(0.25rem, 0.5vw); /* Responsive movement */
+    top: max(0.25rem, 0.5vw);
     box-shadow: 0px 0px;
 }
 
@@ -159,9 +158,9 @@ footer {
     padding: 1rem 0;
     width: 100%;
     font-size: 0.8rem;
-    min-height: 2rem; /* Added minimum height */
-    position: relative; /* Changed from fixed to relative */
-    margin-top: auto; /* Push footer to the bottom */
+    min-height: 2rem; 
+    position: relative;
+    margin-top: auto; 
 }
 
 footer a {
@@ -170,26 +169,26 @@ footer a {
     font-size: 0.5rem;
 }
 
-/* Input container styles */
+
 .input-container {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
-    padding: min(20px, 5vw); /* Responsive padding */
+    padding: min(20px, 5vw); 
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    width: min(95%, 400px); /* Responsive width */
+    width: min(95%, 400px); 
 }
 
 .input-container textarea {
     width: 100%;
-    height: clamp(80px, 20vw, 100px); /* Responsive height */
+    height: clamp(80px, 20vw, 100px);
     margin-bottom: 10px;
     padding: 10px;
-    font-size: clamp(14px, 3vw, 16px); /* Responsive font size */
+    font-size: clamp(14px, 3vw, 16px);
 }
 
 .input-container button {
@@ -199,7 +198,6 @@ footer a {
     cursor: pointer;
 }
 
-/* Button variations */
 .number {
     background-color: #fff2c6;
     border-color: #f8d28b;
@@ -213,9 +211,9 @@ footer a {
 }
 
 .function {
-    background-color: #ffb6c1;
-    border-color: #ff69b4;
-    box-shadow: 0px 0.5rem #ff1493;
+    background-color: #c3e9c3;
+    border-color: #90ee90;
+    box-shadow: 0px 0.5rem #239f23;
 }
 
 .constant {
@@ -231,9 +229,10 @@ footer a {
 }
 
 .compute {
-    background-color: #ff6961;
-    border-color: #ff4500;
-    box-shadow: 0px 0.5rem #dc143c;
+    background-color: #ff7f50; 
+border-color: #ff4500; 
+box-shadow: 0px 0.5rem #ff6347; 
+
 }
 
 .matrix-operation {
@@ -246,4 +245,34 @@ footer a {
     background-color: #98fb98;
     border-color: #3cb371;
     box-shadow: 0px 0.5rem #2e8b57;
+}
+
+#statistics-input-container{
+    background-color: #ffd700;
+
+    display: none;
+}
+#statistics-input-container button{
+    cursor: pointer;
+    font-size: clamp(0.1rem, 2vw, 1rem);
+    font-family: inherit;
+    font-weight: bold;
+    color: #000000;
+    background-color: #fff2c6;
+    padding: clamp(0.3rem, 2vw, 0.8rem); 
+    border-radius: 1rem;
+    border: max(0.15rem, 0.3vw) solid #f8d28b; 
+    box-shadow: 0px clamp(0px, 0.5vw, 0.01rem) #ffbc1f;    transition: all 0.1s ease;
+    min-height: 0.1rem;
+    min-width: 0.4rem; 
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height:1rem
+}
+
+#matrix-input-container{
+    display: none;
+
 }
