@@ -78,12 +78,15 @@ document.querySelectorAll('.btn.function').forEach(button => {
         let buttonValue = button.textContent;
         
         if (buttonValue === "!") {
-            input.value += "()"; 
+            input.value += "()!"; 
         } else if (buttonValue === "x²" || buttonValue === "x³") {
             input.value += `(${input.value})**${buttonValue === "x²" ? 2 : 3}`;
         } else if (buttonValue === "xⁿ") {
             input.value += `(${input.value})**`;
-        } else if (buttonValue === "1/x") {
+        } 
+        else if (buttonValue === "√") {
+            input.value += `(${input.value})**${0.5}`;
+        }else if (buttonValue === "1/x") {
             input.value = `1/(${input.value})`; 
         } else if (buttonValue === "nCr" || buttonValue === "nPr") {
             input.value += `(${input.value})`;
@@ -140,18 +143,12 @@ function convertToJsExpression(input) {
     input = input.replace(/(?<!Math\.)sin/g, 'Math.sin');
     input = input.replace(/(?<!Math\.)cos/g, 'Math.cos');
     input = input.replace(/(?<!Math\.)tan/g, 'Math.tan');
-        
-    
-    
-  
     input = input.replace(/log/g, 'Math.log10');
     input = input.replace(/ln/g, 'Math.log');
-
     input = input.replace(/×/g, '*');
     input = input.replace(/x(?!\w)/g, '*');
     input = input.replace(/÷/g, '/');
     input = input.replace(/\^/g, '**');
-    
     input = input.replace(/(\d)(?=Math\.)/g, '$1*'); 
     input = input.replace(/(Math\.[A-Z]+)(\d)/g, '$1*$2'); 
     input = input.replace(/(\d)(\()/g, '$1*$2'); 
@@ -190,16 +187,13 @@ function splitExpression(input) {
     if (currentPart) {
         parts.push(currentPart);
     }
-    
     return parts;
 }
 
 function buildAST(tokens) {
     if (tokens.length === 1){
-        
         return { type: 'Literal', value: tokens[0] }
     };
-    
     
     let depth = 0;
     for (let i = tokens.length - 1; i >= 0; i--) {
@@ -216,7 +210,6 @@ function buildAST(tokens) {
         } else if (token === '(') depth++;
         else if (token === ')') depth--;
     }
-    
     return { type: 'Literal', value: tokens[0] };
 }
 
@@ -256,7 +249,6 @@ function compute(expression) {
 
     let i = 0;
 
-    // Helper function to apply operator
     function applyOperator() {
         const operator = ops.pop();
         const right = values.pop();
@@ -267,13 +259,12 @@ function compute(expression) {
             case '*': values.push(left * right); break;
             case '/': values.push(left / right); break;
             case '%': values.push(left % right); break;
-            case '^': values.push(Math.pow(left, right)); break; // Handle '^' operator
-            case '**': values.push(Math.pow(left, right)); break; // Handle '**' operator
+            case '^': values.push(Math.pow(left, right)); break;
+            case '**': values.push(Math.pow(left, right)); break; 
             default: throw new Error("Unknown operator: " + operator);
         }
     }
 
-    // Helper function to apply function
     function applyFunction(func) {
         const arg = values.pop();
         switch (func) {
@@ -291,45 +282,41 @@ function compute(expression) {
         let char = expression[i];
 
         if (/\d/.test(char)) {
-            // Parse numbers (including decimals)
             let num = '';
             while (i < expression.length && /\d|\./.test(expression[i])) {
                 num += expression[i++];
             }
             values.push(parseFloat(num));
         } else if (char === '(') {
-            // Push opening parenthesis to the ops stack
             ops.push(char);
             i++;
         } else if (char === ')') {
-            // Process all operators until the matching '(' is found
             while (ops.length && ops[ops.length - 1] !== '(') {
                 applyOperator();
             }
-            ops.pop(); // Pop the '('
+            ops.pop(); 
             i++;
         } else if (operators[char] || (char === '*' && expression[i + 1] === '*')) {
-            // Handle operators (including '**')
+            
             let operator = char;
             if (char === '*' && expression[i + 1] === '*') {
-                operator = '**'; // Handle '**' operator
-                i++; // Skip the second '*'
+                operator = '**'; 
+                i++;
             }
-            // Process higher precedence operators first
+           
             while (ops.length && operators[ops[ops.length - 1]] >= operators[operator]) {
                 applyOperator();
             }
             ops.push(operator);
             i++;
         } else if (/[a-zA-Z]/.test(char)) {
-            // Parse functions like Math.sin, Math.cos, etc.
             let func = '';
             while (i < expression.length && /[a-zA-Z]/.test(expression[i])) {
                 func += expression[i++];
             }
             if (func === 'Math.sin' || func === 'Math.cos' || func === 'Math.tan' || func === 'Math.log' || func === 'Math.ln' || func === 'Math.sqrt') {
                 funcs.push(func);
-                ops.push('('); // Push '(' to handle function arguments
+                ops.push('(');
             } else {
                 throw new Error("Unknown function: " + func);
             }
@@ -338,16 +325,15 @@ function compute(expression) {
         }
     }
 
-    // Process remaining operators
+
     while (ops.length) {
         if (ops[ops.length - 1] === '(') {
-            ops.pop(); // Discard any remaining '('
+            ops.pop();
         } else {
             applyOperator();
         }
     }
 
-    // Process remaining functions
     while (funcs.length) {
         const func = funcs.pop();
         applyFunction(func);
