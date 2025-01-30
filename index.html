@@ -18,12 +18,7 @@
         <section id="calculator">
             <article id = input>
               <input id = "expression">  
-              <form >
-                <input type="radio" id="languagemode" name="mode" value="btn">
-                Plain Language
-                <input type="radio" id="btnmode" name="mode" value="btn">
-                Button Mode
-              </form>
+              
             </article>
             <section id="numbers">
                 <!-- Number Section -->
@@ -48,7 +43,7 @@
                     <button class="btn basic-operation">-</button>
                     <button class="btn basic-operation">x</button>
                     <button class="btn number">( )</button>
-                    <button class="btn compute">C</button>
+                    <button data-columns="2" class="btn compute">C</button>
                     <button id = "equal" class="btn basic-operation">=</button>
                 </section>
             
@@ -64,21 +59,19 @@
                     <button class="btn function">sin</button>
                     <button class="btn function">cos</button>
                     <button class="btn function">tan</button>
-                    <button class="btn function">exp</button>
                 
-                    <button class="btn operation">=> (=>)</button>
+                    <button class="btn operation">=></button>
                     <button class="btn function">!</button>
                     <button class="btn function">x²</button>
                     <button class="btn function">x³</button>
                     <button class="btn function">xⁿ</button>
                     <button class="btn function">1/x</button>
                    
-                    <button class="btn compute">AC</button>
-                    <button class="btn compute">=</button>
-                    
+                    <button class="btn function">nCr</button>
+                    <button class="btn function">nPr </button>                    
                     <button class="btn function">10^x</button>
-                    <button class="btn function">log₁₀</button>
-                    <button class="btn function">log₂</button>
+                    <button class="btn function">lg₁₀</button>
+                    <button class="btn function">lg₂</button>
                     <button class="btn function">ln(x)</button>
                
                    
@@ -95,8 +88,8 @@
                     <button class="btn statistical-operation">µ </button>
                     <button class="btn statistical-operation">σ </button>
                     <button class="btn statistical-operation">σ²</button>
-                    <button class="btn statistical-operation">nCr</button>
-                    <button class="btn statistical-operation">nPr </button>
+                    <button data-columns="2" class="btn compute">=</button>
+
 
 
                     
