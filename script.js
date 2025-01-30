@@ -1,5 +1,4 @@
 let input = document.getElementById('expression');
-let currentOperation = ''; 
 
 
 document.querySelectorAll('.btn.number').forEach(button => {
@@ -69,14 +68,12 @@ document.getElementById("equal").addEventListener('click', () => {
 });
 
 document.getElementById("CLEAR").addEventListener('click', () => {
-   
     input.value = ""; 
 });
 
 document.querySelectorAll('.btn.function').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
-        
         if (buttonValue === "!") {
             input.value += "()!"; 
         } else if (buttonValue === "x²" || buttonValue === "x³") {
@@ -91,21 +88,21 @@ document.querySelectorAll('.btn.function').forEach(button => {
         } else if (buttonValue === "nCr" || buttonValue === "nPr") {
             input.value += `(${input.value})`;
         } else if (buttonValue === "10^x") {
-            input.value = `Math.pow(10, ${input.value})`;  
+            input.value = `10**(${input.value})`;  
         } else if (buttonValue === "lg₁₀") {
             input.value = `Math.log10(${input.value})`;
         } else if (buttonValue === "lg₂") {
             input.value = `Math.log2(${input.value})`; 
         } else if (buttonValue === "ln(x)") {
             input.value = `Math.log(${input.value})`; 
-        } else {
+        } 
+        else if (buttonValue === "e") {
+            input.value += `e`; 
+        }else {
             input.value += buttonValue + "()";  
         }
     });
 });
-
-
-
 
 function factorial(number){
     if(number ==0||number==1){
@@ -116,13 +113,15 @@ function factorial(number){
 
 function convertToJsExpression(input) {
    
-    input = input.replace(/pi/g, 'Math.PI');
-    input = input.replace(/π/g, 'Math.PI');
-    input = input.replace(/exp/g, 'Math.E');
     
+    input = input.replace(/(?<!\d)-(\d+)/g, ' -$1'); 
+
     input = input.replace(/(\d+)!/g, 'factorial($1)');
 
     if (input.includes("°")) {
+        
+
+
         input = input.replace(/sin\(([^)]+)°\)/g, (match, p1) => {
             return `Math.sin((${p1}) * Math.PI / 180)`;
         });
@@ -145,7 +144,9 @@ function convertToJsExpression(input) {
     input = input.replace(/(?<!Math\.)tan/g, 'Math.tan');
     input = input.replace(/log/g, 'Math.log10');
     input = input.replace(/ln/g, 'Math.log');
+    input = input.replace(/(\d+)e([+-]?\d+)/g, '$1x10**$2');
     input = input.replace(/×/g, '*');
+    input = input.replace(/x/g, '*');
     input = input.replace(/x(?!\w)/g, '*');
     input = input.replace(/÷/g, '/');
     input = input.replace(/\^/g, '**');
@@ -156,6 +157,10 @@ function convertToJsExpression(input) {
     input = input.replace(/\)(\()/g, ')*('); 
     input = input.replace(/(\d)(Math)/g, '$1*$2');
     input = input.replace(/\s+/g, '');
+
+    input = input.replace(/pi/g, `${parseFloat(Math.PI)}`);
+    input = input.replace(/π/g, `${parseFloat(Math.PI)}`);
+    input = input.replace(/exp/g, `${parseFloat(Math.E)}`);
     
     return input;
 }
@@ -230,22 +235,56 @@ function solveBST(node) {
     
 }
 
-function compute(expression) {
-    expression = expression.replace(/\s+/g, '');
+function computeMath(expression){
+   
+    if(expression.includes("Math.sin")){
+        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
+        const param = paramMatch[1];
+       
+        return Math.sin(parseFloat(param))
+    }
+    if(expression.includes("Math.cos")){
+        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
+        const param = paramMatch[1];
+       
+        return Math.sin(parseFloat(param))
+    }
+    if(expression.includes("Math.tan")){
+        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
+        const param = paramMatch[1];
+       
+        return Math.tan(parseFloat(param))
+    }
+    if(expression.includes("Math.exp")){
+        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
+        const param = paramMatch[1];
+       
+        return Math.exp(parseFloat(param))
+    }
 
+
+}
+
+function compute(expression) {
+    expression = expression.replace(/\s+/g, ''); // Remove all whitespace
+
+    // Check if the expression contains a Math function
+    if (expression.includes("Math.")) {
+        return computeMath(expression);
+    }
+
+    // Handle basic arithmetic operations
     const operators = {
         '+': 1,
         '-': 1,
         '*': 2,
         '/': 2,
         '%': 2,
-  
-        '**': 3, 
+        '**': 3, // Exponentiation
     };
 
     const values = [];
-    const ops = []; 
-    const funcs = [];
+    const ops = [];
 
     let i = 0;
 
@@ -259,22 +298,8 @@ function compute(expression) {
             case '*': values.push(left * right); break;
             case '/': values.push(left / right); break;
             case '%': values.push(left % right); break;
-            case '^': values.push(Math.pow(left, right)); break;
-            case '**': values.push(Math.pow(left, right)); break; 
+            case '**': values.push(Math.pow(left, right)); break;
             default: throw new Error("Unknown operator: " + operator);
-        }
-    }
-
-    function applyFunction(func) {
-        const arg = values.pop();
-        switch (func) {
-            case 'Math.sin': values.push(Math.sin(arg)); break;
-            case 'Math.cos': values.push(Math.cos(arg)); break;
-            case 'Math.tan': values.push(Math.tan(arg)); break;
-            case 'Math.log': values.push(Math.log10(arg)); break;  
-            case 'Math.ln': values.push(Math.log(arg)); break;
-            case 'Math.sqrt': values.push(Math.sqrt(arg)); break;
-            default: throw new Error("Unknown function: " + func);
         }
     }
 
@@ -294,37 +319,23 @@ function compute(expression) {
             while (ops.length && ops[ops.length - 1] !== '(') {
                 applyOperator();
             }
-            ops.pop(); 
+            ops.pop(); // Remove the '('
             i++;
         } else if (operators[char] || (char === '*' && expression[i + 1] === '*')) {
-            
             let operator = char;
             if (char === '*' && expression[i + 1] === '*') {
-                operator = '**'; 
+                operator = '**'; // Exponentiation
                 i++;
             }
-           
             while (ops.length && operators[ops[ops.length - 1]] >= operators[operator]) {
                 applyOperator();
             }
             ops.push(operator);
             i++;
-        } else if (/[a-zA-Z]/.test(char)) {
-            let func = '';
-            while (i < expression.length && /[a-zA-Z]/.test(expression[i])) {
-                func += expression[i++];
-            }
-            if (func === 'Math.sin' || func === 'Math.cos' || func === 'Math.tan' || func === 'Math.log' || func === 'Math.ln' || func === 'Math.sqrt') {
-                funcs.push(func);
-                ops.push('(');
-            } else {
-                throw new Error("Unknown function: " + func);
-            }
         } else {
             throw new Error('Invalid character: ' + char);
         }
     }
-
 
     while (ops.length) {
         if (ops[ops.length - 1] === '(') {
@@ -334,22 +345,14 @@ function compute(expression) {
         }
     }
 
-    while (funcs.length) {
-        const func = funcs.pop();
-        applyFunction(func);
-    }
-
-    // Return the final result
-    return values.pop();
+    return values.pop(); // Return the final result
 }
-
 function solve(expression){
     let jsExpression = convertToJsExpression(expression);
-    console.log(jsExpression)
     const parts = splitExpression(jsExpression);
     console.log(parts)
     const BST = buildAST(parts);
-    console.log(BST)
+    console.log(solveBST(BST))
     return solveBST(BST);
 
 }
