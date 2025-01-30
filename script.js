@@ -1,13 +1,12 @@
 let input = document.getElementById('expression');
-let currentOperation = '';  // This will store the current statistical operation
+let currentOperation = ''; 
 
 
-// Handle number buttons
 document.querySelectorAll('.btn.number').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
         if (buttonValue !== "=") {
-            input.value += buttonValue;  // Add to input unless the value is "="
+            input.value += buttonValue;  
         }
     });
 });
@@ -16,13 +15,12 @@ document.querySelectorAll('.btn.constant').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
         if (buttonValue !== "=") {
-            input.value += buttonValue;  // Add to input unless the value is "="
+            input.value += buttonValue;  
         }
     });
 });
 
 
-// Button for Statistical Operations (like sin(), cos())
 document.querySelectorAll('.btn.statistical-operation').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
@@ -31,35 +29,78 @@ document.querySelectorAll('.btn.statistical-operation').forEach(button => {
         if (buttonValue !== "=") {
 
             let buttonValue = button.textContent;
-            input.value += buttonValue + "()";  // Add statistical operation with parentheses
+            input.value += buttonValue + "()";  
         }
-        else{
+        else if(buttonValue == "=>"){
+            let equation = input.value; 
+
+            let sides = equation.split("=>"); 
+            console.log(sides)
+
+          
+            let leftSide = sides[0].trim();  
+            let rightSide = sides[1].trim(); 
+            console.log(parseFloat(leftSide) >= parseFloat(rightSide))
+            if (parseFloat(leftSide) >= parseFloat(rightSide)) {
+                input.value = "True";
+            } else {
+                input.value = "False";
+            }
+                
 
         }
 
     });
 });
 
-// Button for Basic Operations (like +, -, *, /)
+
 document.querySelectorAll('.btn.basic-operation').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
         if (buttonValue !== "=") {
-            input.value += buttonValue;  // Add operation to the input
+            input.value += buttonValue; 
         } 
     });
 });
 
-// Handle "=" button to compute the result
 document.getElementById("equal").addEventListener('click', () => {
     let result = solve(input.value); 
-    input.value = result;  // Display the computed result
+    input.value = result; 
 });
 
 document.getElementById("CLEAR").addEventListener('click', () => {
    
-    input.value = "";  // Display the computed result
+    input.value = ""; 
 });
+
+document.querySelectorAll('.btn.function').forEach(button => {
+    button.addEventListener('click', () => {
+        let buttonValue = button.textContent;
+        
+        if (buttonValue === "!") {
+            input.value += "()"; 
+        } else if (buttonValue === "x²" || buttonValue === "x³") {
+            input.value += `(${input.value})**${buttonValue === "x²" ? 2 : 3}`;
+        } else if (buttonValue === "xⁿ") {
+            input.value += `(${input.value})**`;
+        } else if (buttonValue === "1/x") {
+            input.value = `1/(${input.value})`; 
+        } else if (buttonValue === "nCr" || buttonValue === "nPr") {
+            input.value += `(${input.value})`;
+        } else if (buttonValue === "10^x") {
+            input.value = `Math.pow(10, ${input.value})`;  
+        } else if (buttonValue === "lg₁₀") {
+            input.value = `Math.log10(${input.value})`;
+        } else if (buttonValue === "lg₂") {
+            input.value = `Math.log2(${input.value})`; 
+        } else if (buttonValue === "ln(x)") {
+            input.value = `Math.log(${input.value})`; 
+        } else {
+            input.value += buttonValue + "()";  
+        }
+    });
+});
+
 
 
 
@@ -196,8 +237,124 @@ function solveBST(node) {
     
 }
 
-function compute(expression){
-    return eval(expression)
+function compute(expression) {
+    expression = expression.replace(/\s+/g, '');
+
+    const operators = {
+        '+': 1,
+        '-': 1,
+        '*': 2,
+        '/': 2,
+        '%': 2,
+  
+        '**': 3, 
+    };
+
+    const values = [];
+    const ops = []; 
+    const funcs = [];
+
+    let i = 0;
+
+    // Helper function to apply operator
+    function applyOperator() {
+        const operator = ops.pop();
+        const right = values.pop();
+        const left = values.pop();
+        switch (operator) {
+            case '+': values.push(left + right); break;
+            case '-': values.push(left - right); break;
+            case '*': values.push(left * right); break;
+            case '/': values.push(left / right); break;
+            case '%': values.push(left % right); break;
+            case '^': values.push(Math.pow(left, right)); break; // Handle '^' operator
+            case '**': values.push(Math.pow(left, right)); break; // Handle '**' operator
+            default: throw new Error("Unknown operator: " + operator);
+        }
+    }
+
+    // Helper function to apply function
+    function applyFunction(func) {
+        const arg = values.pop();
+        switch (func) {
+            case 'Math.sin': values.push(Math.sin(arg)); break;
+            case 'Math.cos': values.push(Math.cos(arg)); break;
+            case 'Math.tan': values.push(Math.tan(arg)); break;
+            case 'Math.log': values.push(Math.log10(arg)); break;  
+            case 'Math.ln': values.push(Math.log(arg)); break;
+            case 'Math.sqrt': values.push(Math.sqrt(arg)); break;
+            default: throw new Error("Unknown function: " + func);
+        }
+    }
+
+    while (i < expression.length) {
+        let char = expression[i];
+
+        if (/\d/.test(char)) {
+            // Parse numbers (including decimals)
+            let num = '';
+            while (i < expression.length && /\d|\./.test(expression[i])) {
+                num += expression[i++];
+            }
+            values.push(parseFloat(num));
+        } else if (char === '(') {
+            // Push opening parenthesis to the ops stack
+            ops.push(char);
+            i++;
+        } else if (char === ')') {
+            // Process all operators until the matching '(' is found
+            while (ops.length && ops[ops.length - 1] !== '(') {
+                applyOperator();
+            }
+            ops.pop(); // Pop the '('
+            i++;
+        } else if (operators[char] || (char === '*' && expression[i + 1] === '*')) {
+            // Handle operators (including '**')
+            let operator = char;
+            if (char === '*' && expression[i + 1] === '*') {
+                operator = '**'; // Handle '**' operator
+                i++; // Skip the second '*'
+            }
+            // Process higher precedence operators first
+            while (ops.length && operators[ops[ops.length - 1]] >= operators[operator]) {
+                applyOperator();
+            }
+            ops.push(operator);
+            i++;
+        } else if (/[a-zA-Z]/.test(char)) {
+            // Parse functions like Math.sin, Math.cos, etc.
+            let func = '';
+            while (i < expression.length && /[a-zA-Z]/.test(expression[i])) {
+                func += expression[i++];
+            }
+            if (func === 'Math.sin' || func === 'Math.cos' || func === 'Math.tan' || func === 'Math.log' || func === 'Math.ln' || func === 'Math.sqrt') {
+                funcs.push(func);
+                ops.push('('); // Push '(' to handle function arguments
+            } else {
+                throw new Error("Unknown function: " + func);
+            }
+        } else {
+            throw new Error('Invalid character: ' + char);
+        }
+    }
+
+    // Process remaining operators
+    while (ops.length) {
+        if (ops[ops.length - 1] === '(') {
+            ops.pop(); // Discard any remaining '('
+        } else {
+            applyOperator();
+        }
+    }
+
+    // Process remaining functions
+    while (funcs.length) {
+        const func = funcs.pop();
+        applyFunction(func);
+    }
+
+    // Return the final result
+    return values.pop();
 }
 
 function solve(expression){
@@ -255,32 +412,29 @@ function processStatisticsInput() {
             result = variance(numbers);
             break;
         default:
-            result = "Invalid Operation";  // If for some reason the operation is not set
+            result = "Invalid Operation"; 
     }
 
-    // Insert the result into the input field
+    
     input.value = result;
 
-    // Close the input container after processing
     closeStatisticsInput();
 }
 
-// Sum of the numbers in the array
+
 function sum(numbers) {
     return numbers.reduce((total, num) => total + num, 0);
 }
 
-// Product of the numbers in the array
+
 function product(numbers) {
     return numbers.reduce((total, num) => total * num, 1);
 }
 
-// Mean (average) of the numbers in the array
 function mean(numbers) {
     return sum(numbers) / numbers.length;
 }
 
-// Standard deviation of the numbers in the array
 function standardDeviation(numbers) {
     const meanValue = mean(numbers);
     const squaredDifferences = numbers.map(num => Math.pow(num - meanValue, 2));
@@ -288,12 +442,10 @@ function standardDeviation(numbers) {
     return Math.sqrt(averageSquaredDifference);
 }
 
-// Variance of the numbers in the array (square of standard deviation)
 function variance(numbers) {
     return Math.pow(standardDeviation(numbers), 2);
 }
 
-// Open Matrix Input (unchanged)
 function openMatrixInput() {
     const container = document.getElementById("matrix-input-container");
     container.style.display = "block";
@@ -312,21 +464,16 @@ function processMatrixInput() {
     closeMatrixInput();
 }
 
-// Event listeners for statistical operations
 document.querySelectorAll(".btn.statistical-operation").forEach(button => {
     button.addEventListener("click", () => openStatisticsInput(button.textContent));  // Pass button text (Σ, ∏, etc.)
 });
 
-// Event listeners for matrix operations (unchanged)
 document.querySelectorAll(".btn.matrix-operation").forEach(button => {
     button.addEventListener("click", openMatrixInput);
 });
 
-// Submit statistics array and process it
 document.getElementById("submit-statistics").addEventListener("click", processStatisticsInput);
 
-// Close the statistics input
 document.getElementById("close-statistics").addEventListener("click", closeStatisticsInput);
 
-// Close matrix input
 document.getElementById("close-matrix").addEventListener("click", closeMatrixInput);
