@@ -319,7 +319,7 @@ function compute(expression) {
             while (ops.length && ops[ops.length - 1] !== '(') {
                 applyOperator();
             }
-            ops.pop(); // Remove the '('
+            ops.pop();
             i++;
         } else if (operators[char] || (char === '*' && expression[i + 1] === '*')) {
             let operator = char;
@@ -462,7 +462,5 @@ document.querySelectorAll(".btn.matrix-operation").forEach(button => {
 });
 
 document.getElementById("submit-statistics").addEventListener("click", processStatisticsInput);
-
 document.getElementById("close-statistics").addEventListener("click", closeStatisticsInput);
-
 document.getElementById("close-matrix").addEventListener("click", closeMatrixInput);
