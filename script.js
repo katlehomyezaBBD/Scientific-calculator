@@ -176,7 +176,6 @@ function computeMathjsFunctions(expression){
 function compute(expression) {
     expression = expression.replace(/\s+/g, ''); // Remove all whitespace
 
-    // Check if the expression contains a Math function
     if (expression.includes("Math.")) {
         return computeMathjsFunctions(expression);
     }
@@ -301,16 +300,16 @@ function processMatrixInput() {
     
     switch (currentOperation) {
         case 'det':
-            result = det(matrix);  // Calculate determinant of the matrix
+            result = det(matrix);  
             break;
         case 'rank':
-            result = rank(matrix);  // Calculate rank of the matrix
+            result = rank(matrix); 
             break;
         case 'M x M':
-            result = matrixMultiplication(matrix);  // Calculate determinant of the matrix
+            result = matrixMultiplication(matrix); 
             break;
         default:
-            result = "Invalid Operation";  // In case of unknown operation
+            result = "Invalid Operation"; 
     }
 
     input.value = result;
@@ -320,7 +319,7 @@ function processMatrixInput() {
 
 function processStatisticsInput() {
     const inputValue = document.getElementById("statistics-array-input").value;
-    const numbers = inputValue.split(",").map(Number);  // Convert the input string to an array of numbers
+    const numbers = inputValue.split(",").map(Number);  
 
     if (numbers.some(isNaN)) {
         alert("Please enter a valid array of numbers.");
