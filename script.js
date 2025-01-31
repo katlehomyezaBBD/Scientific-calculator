@@ -5,7 +5,9 @@ function factorial(number){
     if(number ==0||number==1){
         return 1
     }
+    console.log(number)
     return number*factorial(number-1)
+    
 }
 
 function convertToJsExpression(input) {  
@@ -15,7 +17,7 @@ function convertToJsExpression(input) {
 
     input = input.replace(/(?<!\d)-(\d+)/g, ' -$1'); 
 
-    input = input.replace(/(\d+)!/g,(match,p1)=>{`${factorial(parseInt(p1))}`} );
+    input = input.replace(/(\d+)!/g, (match, p1) => factorial(parseInt(p1)));
 
     if (input.includes("°")) {
         input = input.replace(/sin\(([^)]+)°\)/g, (match, p1) => {
@@ -522,7 +524,7 @@ document.querySelectorAll('.btn.function').forEach(button => {
     button.addEventListener('click', () => {
         let buttonValue = button.textContent;
         if (buttonValue === "!") {
-            input.value += "()!"; 
+            input.value += "!"; 
         } else if (buttonValue === "x²" || buttonValue === "x³") {
             input.value += `(${input.value})**${buttonValue === "x²" ? 2 : 3}`;
         } else if (buttonValue === "xⁿ") {
