@@ -7,59 +7,57 @@ function factorial(number){
     }
     console.log(number)
     return number*factorial(number-1)
-    
 }
 
-function convertToJsExpression(input) {  
+function convertToJsExpression(input) {
+    // First replace constants with their values, but wrap them in parentheses
+    input = input.replace(/pi/g, `(${parseFloat(Math.PI)})`);
+    input = input.replace(/π/g, `(${parseFloat(Math.PI)})`);
+    input = input.replace(/(?<![\d.])e(?!\d)/g, `(${parseFloat(Math.E)})`);  // Only replace 'e' when it's not part of a number
+    
+    // Handle scientific notation
     input = input.replace(/(\d+\.?\d*)e([+-]?\d+)/g, (match, coefficient, exponent) => {
         return `${coefficient}x10**(${exponent})`;
     });
-
-    input = input.replace(/(?<!\d)-(\d+)/g, ' -$1'); 
-
+    
+    input = input.replace(/(?<!\d)-(\d+)/g, ' -$1');
+    
+    // Handle factorials
     input = input.replace(/(\d+)!/g, (match, p1) => factorial(parseInt(p1)));
-
+    
+    // Handle trigonometric functions with degrees
     if (input.includes("°")) {
         input = input.replace(/sin\(([^)]+)°\)/g, (match, p1) => {
-            return `Math.sin(${parseFloat(p1) * (Math.PI / 180)})`; 
+            return `Math.sin(${parseFloat(p1) * (Math.PI / 180)})`;
         });
         input = input.replace(/cos\(([^)]+)°\)/g, (match, p1) => {
             return `Math.cos(${parseFloat(p1) * (Math.PI / 180)})`;
         });
         input = input.replace(/tan\(([^)]+)°\)/g, (match, p1) => {
-            return `Math.tan(${parseFloat(p1) * (Math.PI / 180)})`; 
+            return `Math.tan(${parseFloat(p1) * (Math.PI / 180)})`;
         });
-    } 
-    else{
-        input = input.replace(/sin/g, 'Math.sin');
-        input = input.replace(/cos/g, 'Math.cos');
-        input = input.replace(/tan/g, 'Math.tan');
+    } else {
+        input = input.replace(/(?<!Math\.)sin/g, 'Math.sin');
+        input = input.replace(/(?<!Math\.)cos/g, 'Math.cos');
+        input = input.replace(/(?<!Math\.)tan/g, 'Math.tan');
     }
     
-    input = input.replace(/(?<!Math\.)sin/g, 'Math.sin');
-    input = input.replace(/(?<!Math\.)cos/g, 'Math.cos');
-    input = input.replace(/(?<!Math\.)tan/g, 'Math.tan');
-    input = input.replace(/log/g, 'Math.log10');
-    input = input.replace(/ln/g, 'Math.log');
-    input = input.replace(/(\d+)e([+-]?\d+)/g, '$1x10**$2');
+    // Replace operators
     input = input.replace(/×/g, '*');
-    input = input.replace(/x/g, '*');
-    input = input.replace(/x(?!\w)/g, '*');
+    input = input.replace(/x(?!\w)/g, '*');  // Replace x with * only when not followed by word characters
     input = input.replace(/÷/g, '/');
     input = input.replace(/\^/g, '**');
-    input = input.replace(/(\d)(?=Math\.)/g, '$1*'); 
-    input = input.replace(/(Math\.[A-Z]+)(\d)/g, '$1*$2'); 
-    input = input.replace(/(\d)(\()/g, '$1*$2'); 
-    input = input.replace(/\)(\d)/g, ')*$1'); 
-    input = input.replace(/\)(\()/g, ')*('); 
-    input = input.replace(/(\d)(Math)/g, '$1*$2');
-    input = input.replace(/\s+/g, '');
-
     
-
-    input = input.replace(/pi/g, `${parseFloat(Math.PI)}`);
-    input = input.replace(/π/g, `${parseFloat(Math.PI)}`);
-    input = input.replace(/e/g, `${parseFloat(Math.E)}`);
+    // Handle implicit multiplication
+    input = input.replace(/(\d)(?=Math\.)/g, '$1*');
+    input = input.replace(/(Math\.[A-Z]+)(\d)/g, '$1*$2');
+    input = input.replace(/(\d)(\()/g, '$1*$2');
+    input = input.replace(/\)(\d)/g, ')*$1');
+    input = input.replace(/\)(\()/g, ')*(');
+    input = input.replace(/(\d)(Math)/g, '$1*$2');
+    
+    // Remove whitespace
+    input = input.replace(/\s+/g, '');
     
     return input;
 }
@@ -134,40 +132,41 @@ function computeMathjsFunctions(expression){
     if(expression.includes("Math.sin")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
+        
        
-        return Math.sin(parseFloat(param))
+        return Math.sin(compute(param))
     }
     if(expression.includes("Math.cos")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
        
-        return Math.sin(parseFloat(param))
+        return Math.cos(compute(param))
     }
     if(expression.includes("Math.tan")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
        
-        return Math.tan(parseFloat(param))
+        return Math.tan(compute(param))
     }
     if(expression.includes("Math.exp")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
        
-        return Math.exp(parseFloat(param))
+        return Math.exp(compute(param))
     }
 
     if(expression.includes("Math.log")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
        
-        return Math.log(parseFloat(param))
+        return Math.log(compute(param))
     }
 
     if(expression.includes("Math.log10")){
         const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
         const param = paramMatch[1];
        
-        return Math.log10(parseFloat(param))
+        return Math.log10(compute(param))
     }
 
 
