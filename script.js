@@ -1,267 +1,298 @@
 let input = document.getElementById('expression');
 let currentOperation = "";
 
-function factorial(number){
-    if(number ==0||number==1){
-        return 1
+class Token { 
+    constructor(type, value) {
+        this.type = type;
+        this.value = value;
     }
-    console.log(number)
-    return number*factorial(number-1)
 }
 
-function convertToJsExpression(input) {
-    // First replace constants with their values, but wrap them in parentheses
-    input = input.replace(/pi/g, `(${parseFloat(Math.PI)})`);
-    input = input.replace(/π/g, `(${parseFloat(Math.PI)})`);
-    input = input.replace(/(?<![\d.])e(?!\d)/g, `(${parseFloat(Math.E)})`);  // Only replace 'e' when it's not part of a number
-    
-    // Handle scientific notation
-    input = input.replace(/(\d+\.?\d*)e([+-]?\d+)/g, (match, coefficient, exponent) => {
-        return `${coefficient}x10**(${exponent})`;
-    });
-    
-    input = input.replace(/(?<!\d)-(\d+)/g, ' -$1');
-    
-    // Handle factorials
-    input = input.replace(/(\d+)!/g, (match, p1) => factorial(parseInt(p1)));
-    
-    // Handle trigonometric functions with degrees
-    if (input.includes("°")) {
-        input = input.replace(/sin\(([^)]+)°\)/g, (match, p1) => {
-            return `Math.sin(${parseFloat(p1) * (Math.PI / 180)})`;
-        });
-        input = input.replace(/cos\(([^)]+)°\)/g, (match, p1) => {
-            return `Math.cos(${parseFloat(p1) * (Math.PI / 180)})`;
-        });
-        input = input.replace(/tan\(([^)]+)°\)/g, (match, p1) => {
-            return `Math.tan(${parseFloat(p1) * (Math.PI / 180)})`;
-        });
-    } else {
-        input = input.replace(/(?<!Math\.)sin/g, 'Math.sin');
-        input = input.replace(/(?<!Math\.)cos/g, 'Math.cos');
-        input = input.replace(/(?<!Math\.)tan/g, 'Math.tan');
+class Lexer {
+    constructor(input) {
+        this.input = input
+            .replace(/\s+/g, '')
+            .replace(/×/g, '*')
+            .replace(/x/g, '*')
+            .replace(/÷/g, '/')
+            .replace(/\^/g, '**')
+            .trim();
+        this.position = 0;
+        this.currentChar = this.input[0];
     }
-    
-    // Replace operators
-    input = input.replace(/×/g, '*');
-    input = input.replace(/x/g, '*');  // Replace x with * only when not followed by word characters
-    input = input.replace(/÷/g, '/');
-    input = input.replace(/\^/g, '**');
-    
-    // Handle implicit multiplication
-    input = input.replace(/(\d)(?=Math\.)/g, '$1*');
-    input = input.replace(/(Math\.[A-Z]+)(\d)/g, '$1*$2');
-    input = input.replace(/(\d)(\()/g, '$1*$2');
-    input = input.replace(/\)(\d)/g, ')*$1');
-    input = input.replace(/\)(\()/g, ')*(');
-    input = input.replace(/(\d)(Math)/g, '$1*$2');
-    
-    // Remove whitespace
-    input = input.replace(/\s+/g, '');
-    
-    return input;
-}
 
-function splitExpression(input) {
-    const regex = /([+-])/;
-    const result = input.split(regex).filter(Boolean);
-    
-    let parts = [];
-    let currentPart = '';
-    
-    result.forEach(item => {
-        if (item === '+' || item === '-') {
-            if (currentPart) {
-                parts.push(currentPart);
-            }
-            parts.push(item);
-            currentPart = '';
-        } else {
-            currentPart += item;
+    advance() {
+        this.position++;
+        this.currentChar = this.position < this.input.length ? this.input[this.position] : null;
+    }
+
+    peek() {
+        const peekPos = this.position + 1;
+        return peekPos < this.input.length ? this.input[peekPos] : null;
+    }
+
+    peekWord() {
+        let pos = this.position;
+        let result = '';
+        while (pos < this.input.length && /[a-zA-Z]/.test(this.input[pos])) {
+            result += this.input[pos];
+            pos++;
         }
-    });
-    
-    if (currentPart) {
-        parts.push(currentPart);
+        return result;
     }
-    return parts;
-}
 
-function buildAST(tokens) {
-    if (tokens.length === 1){
-        return { type: 'Literal', value: tokens[0] }
-    };
-    
-    let depth = 0;
-    for (let i = tokens.length - 1; i >= 0; i--) {
-        const token = tokens[i];
-        if (token === '+' || token === '-') {
-            if (depth === 0) {
-                return {
-                    type: 'BinaryExpression',
-                    operator: token,
-                    left: buildAST(tokens.slice(0, i)),
-                    right: buildAST(tokens.slice(i + 1))
-                };
+    number() {
+        let result = '';
+        let hasDecimal = false;
+        let hasE = false;
+
+        while (this.currentChar && (
+            /[\d.]/.test(this.currentChar) || 
+            (this.currentChar.toLowerCase() === 'e' && !hasE) ||
+            ((this.currentChar === '+' || this.currentChar === '-') && result.toLowerCase().endsWith('e'))
+        )) {
+            if (this.currentChar === '.') {
+                if (hasDecimal) break;
+                hasDecimal = true;
             }
-        } else if (token === '(') depth++;
-        else if (token === ')') depth--;
+            if (this.currentChar.toLowerCase() === 'e') {
+                if (hasE) break;
+                hasE = true;
+            }
+            result += this.currentChar;
+            this.advance();
+        }
+
+        const nextWord = this.peekWord();
+        if (nextWord === 'pi' || this.currentChar === 'π') {
+            if (nextWord === 'pi') {
+                this.position += 2; // Skip 'pi'
+                this.currentChar = this.position < this.input.length ? this.input[this.position] : null;
+            } else {
+                this.advance(); // Skip 'π'
+            }
+            return new Token('NUMBER', parseFloat(result) * Math.PI);
+        }
+
+        return new Token('NUMBER', parseFloat(result));
     }
-    return { type: 'Literal', value: tokens[0] };
+
+    identifier() {
+        let result = '';
+        while (this.currentChar && /[a-zA-Z]/.test(this.currentChar)) {
+            result += this.currentChar;
+            this.advance();
+        }
+        return result;
+    }
+
+    getNextToken() {
+        while (this.currentChar !== null) {
+            if (this.currentChar === ' ') {
+                this.advance();
+                continue;
+            }
+
+            if (/[\d.]/.test(this.currentChar)) {
+                return this.number();
+            }
+
+            if (/[a-zA-Z]/.test(this.currentChar)) {
+                const identifier = this.identifier();
+                if (identifier === 'pi') return new Token('NUMBER', Math.PI);
+                if (identifier === 'e' && !/\d/.test(this.peek())) return new Token('NUMBER', Math.E);
+                if (['sin', 'cos', 'tan', 'log', 'log10',"ln"].includes(identifier)) return new Token('FUNC', identifier);
+                throw new Error(`Unknown identifier: ${identifier}`);
+            }
+
+            if (this.currentChar === '+') {
+                this.advance();
+                return new Token('PLUS', '+');
+            }
+
+            if (this.currentChar === '-') {
+                this.advance();
+                return new Token('MINUS', '-');
+            }
+
+            if (this.currentChar === '*') {
+                this.advance();
+                if (this.currentChar === '*') {
+                    this.advance();
+                    return new Token('POW', '**');
+                }
+                return new Token('MUL', '*');
+            }
+
+            if (this.currentChar === '/') {
+                this.advance();
+                return new Token('DIV', '/');
+            }
+
+            if (this.currentChar === '(') {
+                this.advance();
+                return new Token('LPAREN', '(');
+            }
+
+            if (this.currentChar === ')') {
+                this.advance();
+                return new Token('RPAREN', ')');
+            }
+
+            if (this.currentChar === '°') {
+                this.advance();
+                return new Token('DEG', '°');
+            }
+
+            if (this.currentChar === 'π') {
+                this.advance();
+                return new Token('NUMBER', Math.PI);
+            }
+
+            if (this.currentChar === '!') { // Handle factorial
+                this.advance();
+                return new Token('FACTORIAL', '!');
+            }
+
+            throw new Error(`Invalid character: ${this.currentChar}`);
+        }
+
+        return new Token('EOF', null);
+    }
 }
 
-function solveAST(node) {
-    if (node.type === "Literal") {
-        try {
-            const result = compute(node.value)
+class Parser {
+    constructor(lexer) {
+        this.lexer = lexer;
+        this.currentToken = this.lexer.getNextToken();
+    }
+
+    eat(tokenType) {
+        if (this.currentToken.type === tokenType) {
+            this.currentToken = this.lexer.getNextToken();
+        } else {
+            throw new Error(`Expected ${tokenType} but got ${this.currentToken.type}`);
+        }
+    }
+
+    factorial(n) {
+        if (n === 0 || n === 1) return 1;
+        return n * this.factorial(n - 1);
+    }
+
+    factor() {
+        const token = this.currentToken;
+
+        if (token.type === 'NUMBER') {
+            this.eat('NUMBER');
+            let result = token.value;
+            // Check if factorial follows the number
+            if (this.currentToken.type === 'FACTORIAL') {
+                this.eat('FACTORIAL');
+                result = this.factorial(result);
+            }
             return result;
-        } catch (error) {
-            console.error("Error evaluating:", node.value);
-            return NaN;
         }
-    } else {
-        const leftValue = solveAST(node.left);
-        const rightValue = solveAST(node.right);
-        return node.operator === "+" ? leftValue + rightValue : leftValue - rightValue;
+
+        if (token.type === 'LPAREN') {
+            this.eat('LPAREN');
+            const result = this.expr();
+            this.eat('RPAREN');
+            return result;
+        }
+
+        if (token.type === 'FUNC') {
+            const func = token.value;
+            this.eat('FUNC');
+            this.eat('LPAREN');
+            const arg = this.expr();
+            let degrees = false;
+            if (this.currentToken.type === 'DEG') {
+                degrees = true;
+                this.eat('DEG');
+            }
+            this.eat('RPAREN');
+            
+            const radians = degrees ? arg * Math.PI / 180 : arg;
+            switch(func) {
+                case 'sin': return Math.sin(radians);
+                case 'cos': return Math.cos(radians);
+                case 'tan': return Math.tan(radians);
+                case 'log': return Math.log(arg);
+                case 'log10': return Math.log10(arg);
+                case 'ln': return Math.log10(arg);
+                default: throw new Error(`Unknown function: ${func}`);
+            }
+        }
+
+        if (token.type === 'MINUS') {
+            this.eat('MINUS');
+            return -this.factor();
+        }
+
+        if (token.type === 'PLUS') {
+            this.eat('PLUS');
+            return this.factor();
+        }
+
+        throw new Error('Invalid syntax');
     }
-    
+
+    power() {
+        let result = this.factor();
+
+        while (this.currentToken.type === 'POW') {
+            this.eat('POW');
+            result = Math.pow(result, this.factor());
+        }
+
+        return result;
+    }
+
+    term() {
+        let result = this.power();
+
+        while (['MUL', 'DIV'].includes(this.currentToken.type)) {
+            const token = this.currentToken;
+            if (token.type === 'MUL') {
+                this.eat('MUL');
+                result *= this.power();
+            } else if (token.type === 'DIV') {
+                this.eat('DIV');
+                result /= this.power();
+            }
+        }
+
+        return result;
+    }
+
+    expr() {
+        let result = this.term();
+
+        while (['PLUS', 'MINUS'].includes(this.currentToken.type)) {
+            const token = this.currentToken;
+            if (token.type === 'PLUS') {
+                this.eat('PLUS');
+                result += this.term();
+            } else if (token.type === 'MINUS') {
+                this.eat('MINUS');
+                result -= this.term();
+            }
+        }
+
+        return result;
+    }
 }
 
-function computeMathjsFunctions(expression){
-   
-    if(expression.includes("Math.sin")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-        
-       
-        return Math.sin(compute(param))
+function solve(expression) {
+    try {
+        const lexer = new Lexer(expression);
+        const parser = new Parser(lexer);
+        return parser.expr();
+    } catch (error) {
+        console.error(`Error calculating "${expression}":`, error.message);
+        return NaN;
     }
-    if(expression.includes("Math.cos")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-       
-        return Math.cos(compute(param))
-    }
-    if(expression.includes("Math.tan")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-       
-        return Math.tan(compute(param))
-    }
-    if(expression.includes("Math.exp")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-       
-        return Math.exp(compute(param))
-    }
-
-    if(expression.includes("Math.log")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-       
-        return Math.log(compute(param))
-    }
-
-    if(expression.includes("Math.log10")){
-        const paramMatch = expression.match(/Math\.\w+\(([^)]+)\)/);
-        const param = paramMatch[1];
-       
-        return Math.log10(compute(param))
-    }
-
-
-}
-
-function compute(expression) {
-    expression = expression.replace(/\s+/g, ''); // Remove all whitespace
-
-    if (expression.includes("Math.")) {
-        return computeMathjsFunctions(expression);
-    }
-
-
-    const operators = {
-        '+': 1,
-        '-': 1,
-        '*': 2,
-        '/': 2,
-        '%': 2,
-        '**': 3,
-    };
-
-    const values = [];
-    const ops = [];
-
-    let i = 0;
-
-    function applyOperator() {
-        const operator = ops.pop();
-        const right = values.pop();
-        const left = values.pop();
-        switch (operator) {
-            case '+': values.push(left + right); break;
-            case '-': values.push(left - right); break;
-            case '*': values.push(left * right); break;
-            case '/': values.push(left / right); break;
-            case '%': values.push(left % right); break;
-            case '**': values.push(Math.pow(left, right)); break;
-            default: throw new Error("Unknown operator: " + operator);
-        }
-    }
-
-    while (i < expression.length) {
-        let char = expression[i];
-
-        if (/\d/.test(char)) {
-            let num = '';
-            while (i < expression.length && /\d|\./.test(expression[i])) {
-                num += expression[i++];
-            }
-            values.push(parseFloat(num));
-        } else if (char === '(') {
-            ops.push(char);
-            i++;
-        } else if (char === ')') {
-            while (ops.length && ops[ops.length - 1] !== '(') {
-                applyOperator();
-            }
-            ops.pop();
-            i++;
-        } else if (operators[char] || (char === '*' && expression[i + 1] === '*')) {
-            let operator = char;
-            if (char === '*' && expression[i + 1] === '*') {
-                operator = '**'; // Exponentiation
-                i++;
-            }
-            while (ops.length && operators[ops[ops.length - 1]] >= operators[operator]) {
-                applyOperator();
-            }
-            ops.push(operator);
-            i++;
-        } else {
-            throw new Error('Invalid character: ' + char);
-        }
-    }
-
-    while (ops.length) {
-        if (ops[ops.length - 1] === '(') {
-            ops.pop();
-        } else {
-            applyOperator();
-        }
-    }
-
-    return values.pop();
-}
-
-function solve(expression){
-    let jsExpression = convertToJsExpression(expression);
-    const parts = splitExpression(jsExpression);
-    console.log(parts)
-    const BST = buildAST(parts);
-    console.log(solveAST(BST))
-    return solveAST(BST);
-
 }
 
 function openStatisticsInput(type) {
@@ -278,7 +309,6 @@ function openMatrixInput(type) {
     currentOperation = type;  
 
 }
-
 
 function closeStatisticsInput() {
     const container = document.getElementById("statistics-input-container");
@@ -334,13 +364,13 @@ function processStatisticsInput() {
         case '∏': 
             result = product(numbers);
             break;
-        case 'µ': // Mean (average)
+        case 'µ': 
             result = mean(numbers);
             break;
         case 'σ': 
             result = standardDeviation(numbers);
             break;
-        case 'σ²': // Variance
+        case 'σ²': 
             result = variance(numbers);
             break;
         default:
@@ -353,10 +383,17 @@ function processStatisticsInput() {
     closeStatisticsInput();
 }
 
+function factorial(number){
+    if(number ==0||number==1){
+        return 1
+    }
+    console.log(number)
+    return number*factorial(number-1)
+}
+
 function sum(numbers) {
     return numbers.reduce((total, num) => total + num, 0);
 }
-
 
 function product(numbers) {
     return numbers.reduce((total, num) => total * num, 1);
@@ -441,12 +478,10 @@ function rank(matrixStr) {
     return rank;
 }
 
-
 function closeMatrixInput() {
     const container = document.getElementById("matrix-input-container");
     container.style.display = "none";
 }
-
 
 document.querySelectorAll('.btn.number').forEach(button => {
     button.addEventListener('click', () => {
