@@ -44,7 +44,7 @@ function convertToJsExpression(input) {
     
     // Replace operators
     input = input.replace(/×/g, '*');
-    input = input.replace(/x(?!\w)/g, '*');  // Replace x with * only when not followed by word characters
+    input = input.replace(/x/g, '*');  // Replace x with * only when not followed by word characters
     input = input.replace(/÷/g, '/');
     input = input.replace(/\^/g, '**');
     
@@ -256,7 +256,6 @@ function compute(expression) {
 
 function solve(expression){
     let jsExpression = convertToJsExpression(expression);
-    console.log(jsExpression)
     const parts = splitExpression(jsExpression);
     console.log(parts)
     const BST = buildAST(parts);
